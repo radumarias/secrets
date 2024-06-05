@@ -187,6 +187,14 @@
 // disabled due to https://github.com/rust-lang/rust/issues/69952
 #![cfg_attr(feature = "cargo-clippy", allow(clippy::wildcard_imports))]
 
+use pyo3::prelude::*;
+
+/// A Python module implemented in Rust.
+#[pymodule]
+fn rencrypt<'py>(_py: Python, m: &Bound<'py, PyModule>) -> PyResult<()> {
+    Ok(())
+}
+
 /// Macros for ensuring code correctness inspired by [sqlite].
 ///
 /// [sqlite]: https://www.sqlite.org/assert.html

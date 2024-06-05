@@ -14,7 +14,12 @@ readme        = "README.md"
 
 keywords = [ "crypto", "cryptography", "allocator" ]
 
+[lib]
+name = "rencrypt"
+crate-type = ["cdylib"]
+
 [dependencies]
+pyo3 = { version = "0.21.2", features = ["extension-module"] }
 libc          = '0'
 libsodium-sys = { version = '0.2', optional = true }
 
