@@ -8,7 +8,7 @@ use std::sync::Once;
 use libc::{self, size_t};
 
 #[cfg(not(feature = "use-libsodium-sys"))]
-use libc::{c_void, c_int};
+use libc::{c_int, c_void};
 
 #[cfg(feature = "use-libsodium-sys")]
 use libsodium_sys::{
@@ -65,7 +65,12 @@ pub(crate) fn fail() {
 pub(crate) fn init() -> bool {
     unsafe {
         #[cfg(test)]
-        { if FAIL.with(|f| f.replace(false)) { return false }; let _x = 0; };
+        {
+            if FAIL.with(|f| f.replace(false)) {
+                return false;
+            };
+            let _x = 0;
+        };
 
         INIT.call_once(|| {
             // NOTE: Calls to transmute fail to compile if the source
@@ -77,7 +82,7 @@ pub(crate) fn init() -> bool {
             // sizes and [`libc::size_t`]. If that's not true, DO NOT
             // COMPILE.
             #[allow(clippy::useless_transmute)]
-            let _ = std::mem::transmute::<usize, size_t>(0);
+            let _ = mem::transmute::<usize, size_t>(0);
 
             let mut failure = false;
 
@@ -88,10 +93,13 @@ pub(crate) fn init() -> bool {
             #[cfg(any(profile = "release", profile = "coverage"))]
             #[cfg(not(feature = "allow-coredumps"))]
             {
-                failure |= libc::setrlimit(libc::RLIMIT_CORE, &libc::rlimit {
-                    rlim_cur: 0,
-                    rlim_max: 0,
-                }) == -1;
+                failure |= libc::setrlimit(
+                    libc::RLIMIT_CORE,
+                    &libc::rlimit {
+                        rlim_cur: 0,
+                        rlim_max: 0,
+                    },
+                ) == -1;
             }
 
             // sodium_init returns 0 on success, -1 on failure, and 1 if
@@ -124,7 +132,12 @@ pub(crate) unsafe fn free<T>(ptr: *mut T) {
 /// Calls the platform's underlying `mlock(2)` implementation.
 pub(crate) unsafe fn mlock<T>(ptr: *mut T) -> bool {
     #[cfg(test)]
-    { if FAIL.with(|f| f.replace(false)) { return false }; let _x = 0; };
+    {
+        if FAIL.with(|f| f.replace(false)) {
+            return false;
+        };
+        let _x = 0;
+    };
 
     sodium_mlock(ptr.cast(), mem::size_of::<T>()) == 0
 }
@@ -132,7 +145,12 @@ pub(crate) unsafe fn mlock<T>(ptr: *mut T) -> bool {
 /// Calls the platform's underlying `munlock(2)` implementation.
 pub(crate) unsafe fn munlock<T>(ptr: *mut T) -> bool {
     #[cfg(test)]
-    { if FAIL.with(|f| f.replace(false)) { return false }; let _x = 0; };
+    {
+        if FAIL.with(|f| f.replace(false)) {
+            return false;
+        };
+        let _x = 0;
+    };
 
     sodium_munlock(ptr.cast(), mem::size_of::<T>()) == 0
 }
@@ -143,7 +161,12 @@ pub(crate) unsafe fn munlock<T>(ptr: *mut T) -> bool {
 /// by libsodium.
 pub(crate) unsafe fn mprotect_noaccess<T>(ptr: *mut T) -> bool {
     #[cfg(test)]
-    { if FAIL.with(|f| f.replace(false)) { return false }; let _x = 0; };
+    {
+        if FAIL.with(|f| f.replace(false)) {
+            return false;
+        };
+        let _x = 0;
+    };
 
     sodium_mprotect_noaccess(ptr.cast()) == 0
 }
@@ -154,7 +177,12 @@ pub(crate) unsafe fn mprotect_noaccess<T>(ptr: *mut T) -> bool {
 /// by libsodium.
 pub(crate) unsafe fn mprotect_readonly<T>(ptr: *mut T) -> bool {
     #[cfg(test)]
-    { if FAIL.with(|f| f.replace(false)) { return false }; let _x = 0; };
+    {
+        if FAIL.with(|f| f.replace(false)) {
+            return false;
+        };
+        let _x = 0;
+    };
 
     sodium_mprotect_readonly(ptr.cast()) == 0
 }
@@ -165,7 +193,12 @@ pub(crate) unsafe fn mprotect_readonly<T>(ptr: *mut T) -> bool {
 /// by libsodium.
 pub(crate) unsafe fn mprotect_readwrite<T>(ptr: *mut T) -> bool {
     #[cfg(test)]
-    { if FAIL.with(|f| f.replace(false)) { return false }; let _x = 0; };
+    {
+        if FAIL.with(|f| f.replace(false)) {
+            return false;
+        };
+        let _x = 0;
+    };
 
     sodium_mprotect_readwrite(ptr.cast()) == 0
 }
@@ -177,21 +210,17 @@ pub(crate) fn memcmp(l: &[u8], r: &[u8]) -> bool {
         return false;
     }
 
-    unsafe {
-        sodium_memcmp(
-            l.as_ptr().cast(),
-            r.as_ptr().cast(),
-            r.len(),
-        ) == 0
-    }
+    unsafe { sodium_memcmp(l.as_ptr().cast(), r.as_ptr().cast(), r.len()) == 0 }
 }
 
 /// Copies bytes from `src` to `dst` before zeroing the bytes in `src`.
 /// `dst` *must* be at least as long as `src` and *must not* overlap
 /// `src`.
 pub(crate) unsafe fn memtransfer(src: &mut [u8], dst: &mut [u8]) {
-    never!(src.len() > dst.len(),
-        "secrets: may not transfer a smaller `src` into a larger `dst`");
+    never!(
+        src.len() > dst.len(),
+        "secrets: may not transfer a smaller `src` into a larger `dst`"
+    );
 
     // Based on the requirements of `ptr::copy_nonoverlapping` and the
     // that we're going to clobber `src`, we ensure that either
@@ -202,12 +231,15 @@ pub(crate) unsafe fn memtransfer(src: &mut [u8], dst: &mut [u8]) {
     // this is proven since in safe rust, two mutable slices may not
     // overlap with one-another
     proven!(
-        (src.as_ptr() < dst.as_ptr() && src.as_ptr().add(src.len()) <= dst.as_ptr()) ||
-        (dst.as_ptr() < src.as_ptr() && dst.as_ptr().add(dst.len()) <= src.as_ptr()),
+        (src.as_ptr() < dst.as_ptr()
+            && src.as_ptr().add(src.len()) <= dst.as_ptr())
+            || (dst.as_ptr() < src.as_ptr()
+                && dst.as_ptr().add(dst.len()) <= src.as_ptr()),
         "secrets: may not transfer overlapping slices into one-another"
     );
 
-    src.as_ptr().copy_to_nonoverlapping(dst.as_mut_ptr(), src.len());
+    src.as_ptr()
+        .copy_to_nonoverlapping(dst.as_mut_ptr(), src.len());
     memzero(src);
 }
 
