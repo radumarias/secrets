@@ -313,8 +313,9 @@ mod assert {
         };
     }
 
+    #[allow(unused_macro_rules)]
     macro_rules! never {
-        ($cond:expr) => {
+        ($cond:expr) => {:
             $cond
         };
 
