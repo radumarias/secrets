@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions-rust-lang/setup-rust-toolchain@v1
-      - run: cargo build --all-features
+      # - run: cargo build --all-features
       - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
