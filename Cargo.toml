@@ -15,7 +15,7 @@ readme        = "README.md"
 keywords = [ "crypto", "cryptography", "allocator" ]
 
 [lib]
-name = "rencrypt"
+name = "secrets"
 crate-type = ["cdylib"]
 
 [dependencies]

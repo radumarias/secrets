@@ -191,7 +191,7 @@ use pyo3::prelude::*;
 
 /// A Python module implemented in Rust.
 #[pymodule]
-fn rencrypt<'py>(_py: Python, m: &Bound<'py, PyModule>) -> PyResult<()> {
+fn secrets<'py>(_py: Python, m: &Bound<'py, PyModule>) -> PyResult<()> {
     Ok(())
 }
 
