@@ -8,7 +8,7 @@
 //! pointer semantics or slice semantics.
 //!
 //! Memory allocations are protected by guard pages before after the
-//! allocation, an underflow canary (to catch underflows before a
+//! allocation, an underflow 1 (to catch underflows before a
 //! guard page), and are zeroed out when freed.
 //!
 //! # Core dumps
@@ -191,7 +191,7 @@ use pyo3::prelude::*;
 
 /// A Python module implemented in Rust.
 #[pymodule]
-fn secrets<'py>(_py: Python, m: &Bound<'py, PyModule>) -> PyResult<()> {
+fn secrets(_py: Python<'_>, _m: &Bound<'_, PyModule>) -> PyResult<()> {
     Ok(())
 }
 
