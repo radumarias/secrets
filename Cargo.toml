@@ -19,7 +19,7 @@ name = "secrets"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = { version = "0.21.2", features = ["extension-module"] }
+pyo3 = { version = "0.24.1", features = ["extension-module"] }
 libc          = '0'
 libsodium-sys = { version = '0.2', optional = true }
 
